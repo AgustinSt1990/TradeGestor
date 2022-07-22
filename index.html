@@ -1,0 +1,91 @@
+<html>
+
+<head>
+
+<title>
+
+Leverage Calculator     
+    
+</title>
+
+<link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+<script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+<py-env>
+  - requests
+  - paths:
+    - /apalancamiento.py
+</py-env>
+
+
+</head>
+
+<style>
+    input[type=text], select {
+      width: 10%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    input[type=submit] {
+      width: 15%;
+      background-color: #4c4faf;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    input[type=submit]:hover {
+      background-color: #45a049;
+    }
+    
+    p {
+      border-radius: 5px;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    </style>
+
+<body>
+    <py-title>Trade Gestor Light</py-title>
+    <form onsubmit="return false">
+        
+      <label for="volOp">Volumen Operación: $</label>
+      <input type="text" id="volOp" name="volOp" value=0.0><br>
+      <label for="volRisk">Volumen Arriesgado: $</label>
+      <input type="text" id="volRisk" name="volRisk" value=0.0><br>
+      <label for="SL">Price target stop-loss: $</label>
+      <input type="text" id="SL" name="SL" value=0.0><br>
+
+      <label for="cripto">Cripto:</label>
+      <select name="cripto" id="cripto">
+          <option value="India">BTC</option>
+          <option value="Germany">ETH</option>
+          <option value="Netherlands">ATOM</option>
+      </select><br>
+      <!-- llama a la funcion "sub" -->
+      <input pys-onClick="sub" type="submit" id="btn-form" value="Calcular Apalancamiento">
+
+    </form> 
+
+    <!-- Imprimimos "output" y creamos un parrafo vacío con id=output -->
+    <p>Output:</p>
+    <p id = 'output'></p>
+    
+    <py-script>
+        from apalancamiento import apalancamiento
+        def sub(*args,**kwargs):
+            result_place = Element('output')
+            result_place.write(f"{Element('name').value} is a good human from {Element('countries').value}")
+    
+    </py-script>
+
+</body>
+</html>
