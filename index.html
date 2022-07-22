@@ -13,6 +13,7 @@ Leverage Calculator
 
 <py-env>
   - requests
+
   - paths:
     - /apalancamiento.py
 </py-env>
@@ -32,7 +33,7 @@ Leverage Calculator
     }
     
     input[type=submit] {
-      width: 15%;
+      width: 30%;
       background-color: #4c4faf;
       color: white;
       padding: 14px 20px;
@@ -55,35 +56,74 @@ Leverage Calculator
 
 <body>
     <py-title>Trade Gestor Light</py-title>
+    <b><a id="BitcoinPrice"></a></b>
     <form onsubmit="return false">
         
       <label for="volOp">Volumen Operación: $</label>
-      <input type="text" id="volOp" name="volOp" value=0.0><br>
+      <input type="text" id="volOp" name="volOp" value=0><br>
       <label for="volRisk">Volumen Arriesgado: $</label>
-      <input type="text" id="volRisk" name="volRisk" value=0.0><br>
+      <input type="text" id="volRisk" name="volRisk" value=0><br>
       <label for="SL">Price target stop-loss: $</label>
-      <input type="text" id="SL" name="SL" value=0.0><br>
+      <input type="text" id="SL" name="SL" value=0><br>
 
-      <label for="cripto">Cripto:</label>
-      <select name="cripto" id="cripto">
-          <option value="India">BTC</option>
-          <option value="Germany">ETH</option>
-          <option value="Netherlands">ATOM</option>
-      </select><br>
+
       <!-- llama a la funcion "sub" -->
       <input pys-onClick="sub" type="submit" id="btn-form" value="Calcular Apalancamiento">
 
     </form> 
 
     <!-- Imprimimos "output" y creamos un parrafo vacío con id=output -->
-    <p>Output:</p>
-    <p id = 'output'></p>
+    <p>Resumen Operación:</p>
+    <p id = 'output1'></p>
+    <p id = 'output2'></p>
+    <p id = 'output3'></p>
+    <p id = 'output4'></p>
     
+    <!-- <py-script src="criptoPrice.py"></py-script> -->
+
+
     <py-script>
         from apalancamiento import apalancamiento
+        from pyodide.http import pyfetch
+        import json
+        import asyncio
+        import re
+        response = await pyfetch(url="https://api.coindesk.com/v1/bpi/currentprice.json", method="GET")
+        
+        output = f'{await response.json()}'
+        
+        def jj(output):
+          str1 = output.replace("\'", "\"")
+          st= json.loads(str1)
+          return st
+        
+        
+        price_BTC = jj(output)['bpi']['USD']['rate_float']
+        
+        pyscript.write('BitcoinPrice', 'Precio de Bitcoin: $ {}'.format(price_BTC))
+        
+        
         def sub(*args,**kwargs):
-            result_place = Element('output')
-            result_place.write(f"{Element('name').value} is a good human from {Element('countries').value}")
+            volOp = float(Element('volOp').value)
+            volRisk = float(Element('volRisk').value)
+            SL = float(Element('SL').value)
+
+            riskOp, riskOpp, apal, liq = apalancamiento(volOp, volRisk, SL, float(price_BTC))
+            
+            riskOp = round(riskOp,2)
+            riskOpp = round(riskOpp,2)
+            liq = round(liq, 2)
+
+
+            result_place = Element('output1')
+            result_place.write(f"Volumen arriesgado: ${riskOp}")
+            result_place = Element('output2')
+            result_place.write(f"Porcentaje arriesgado: {riskOpp}%")
+            result_place = Element('output3')
+            result_place.write(f"Apalancamiento: {apal}x")
+            result_place = Element('output4')
+            result_place.write(f"Precio liquidación: ${liq}")
+            
     
     </py-script>
 
