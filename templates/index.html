@@ -13,9 +13,6 @@ Leverage Calculator
 
 <py-env>
   - requests
-
-  - paths:
-    - /apalancamiento.py
 </py-env>
 
 
@@ -79,11 +76,7 @@ Leverage Calculator
     <p id = 'output3'></p>
     <p id = 'output4'></p>
     
-    <!-- <py-script src="criptoPrice.py"></py-script> -->
-
-
-    <py-script>
-        from apalancamiento import apalancamiento
+        <py-script>
         from pyodide.http import pyfetch
         import json
         import asyncio
@@ -106,9 +99,41 @@ Leverage Calculator
         def sub(*args,**kwargs):
             volOp = float(Element('volOp').value)
             volRisk = float(Element('volRisk').value)
-            SL = float(Element('SL').value)
+            priceSL = float(Element('SL').value)
+            priceActual = float(price_BTC)            
 
-            riskOp, riskOpp, apal, liq = apalancamiento(volOp, volRisk, SL, float(price_BTC))
+            if priceSL < priceActual:
+                opType = 'Long'
+                for i in range(1, 125):
+                    volumen_operation = volOp * i
+                    asset_amount = volumen_operation / priceActual
+                    end_balance = volumen_operation - asset_amount*priceSL
+                    if end_balance >= volRisk:
+                        apal = i
+                        break
+
+            elif priceSL > priceActual:
+                opType = 'Short'
+                for i in range(1, 125):
+                    volumen_operation = volOp * i
+                    asset_amount = volumen_operation / priceActual
+                    end_balance = asset_amount*priceSL - volumen_operation
+                    if end_balance >= volRisk:
+                        apal = i
+                        break
+
+            else:
+                print('posibles errores:\n- que 125x se quede corto\n- que priceSL sea igual a priceActual')
+
+            riskOp = end_balance
+            riskOpp = riskOp/volOp * 100
+        
+            
+            liq = priceActual / apal
+            if opType == 'Long':
+                liq = priceActual - liq
+            else:
+                liq += priceActual
             
             riskOp = round(riskOp,2)
             riskOpp = round(riskOpp,2)
