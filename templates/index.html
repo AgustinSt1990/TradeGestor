@@ -1,12 +1,7 @@
 <html>
-
 <head>
 
-<title>
-
-Leverage Calculator     
-    
-</title>
+<title>Leverage Calculator</title>
 
 <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
 <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
@@ -46,111 +41,108 @@ Leverage Calculator
     
     p {
       border-radius: 5px;
-      background-color: #f2f2f2;
+      background-color: #dddddd;
       padding: 20px;
     }
     </style>
 
 <body>
-    <py-title>Trade Gestor Light</py-title>
-    <b><a id="BitcoinPrice"></a></b>
-    <form onsubmit="return false">
-        
-      <label for="volOp">Volumen Operación: $</label>
-      <input type="text" id="volOp" name="volOp" value=0><br>
-      <label for="volRisk">Volumen Arriesgado: $</label>
-      <input type="text" id="volRisk" name="volRisk" value=0><br>
-      <label for="SL">Price target stop-loss: $</label>
-      <input type="text" id="SL" name="SL" value=0><br>
-
-
-      <!-- llama a la funcion "sub" -->
-      <input pys-onClick="sub" type="submit" id="btn-form" value="Calcular Apalancamiento">
-
-    </form> 
-
-    <!-- Imprimimos "output" y creamos un parrafo vacío con id=output -->
-    <p>Resumen Operación:</p>
-    <p id = 'output1'></p>
-    <p id = 'output2'></p>
-    <p id = 'output3'></p>
-    <p id = 'output4'></p>
-    
-        <py-script>
-        from pyodide.http import pyfetch
-        import json
-        import asyncio
-        import re
-        response = await pyfetch(url="https://api.coindesk.com/v1/bpi/currentprice.json", method="GET")
-        
-        output = f'{await response.json()}'
-        
-        def jj(output):
-          str1 = output.replace("\'", "\"")
-          st= json.loads(str1)
-          return st
-        
-        
-        price_BTC = jj(output)['bpi']['USD']['rate_float']
-        
-        pyscript.write('BitcoinPrice', 'Precio de Bitcoin: $ {}'.format(price_BTC))
-        
-        
-        def sub(*args,**kwargs):
-            volOp = float(Element('volOp').value)
-            volRisk = float(Element('volRisk').value)
-            priceSL = float(Element('SL').value)
-            priceActual = float(price_BTC)            
-
-            if priceSL < priceActual:
-                opType = 'Long'
-                for i in range(1, 125):
-                    volumen_operation = volOp * i
-                    asset_amount = volumen_operation / priceActual
-                    end_balance = volumen_operation - asset_amount*priceSL
-                    if end_balance >= volRisk:
-                        apal = i
-                        break
-
-            elif priceSL > priceActual:
-                opType = 'Short'
-                for i in range(1, 125):
-                    volumen_operation = volOp * i
-                    asset_amount = volumen_operation / priceActual
-                    end_balance = asset_amount*priceSL - volumen_operation
-                    if end_balance >= volRisk:
-                        apal = i
-                        break
-
-            else:
-                print('posibles errores:\n- que 125x se quede corto\n- que priceSL sea igual a priceActual')
-
-            riskOp = end_balance
-            riskOpp = riskOp/volOp * 100
-        
-            
-            liq = priceActual / apal
-            if opType == 'Long':
-                liq = priceActual - liq
-            else:
-                liq += priceActual
-            
-            riskOp = round(riskOp,2)
-            riskOpp = round(riskOpp,2)
-            liq = round(liq, 2)
-
-
-            result_place = Element('output1')
-            result_place.write(f"Volumen arriesgado: ${riskOp}")
-            result_place = Element('output2')
-            result_place.write(f"Porcentaje arriesgado: {riskOpp}%")
-            result_place = Element('output3')
-            result_place.write(f"Apalancamiento: {apal}x")
-            result_place = Element('output4')
-            result_place.write(f"Precio liquidación: ${liq}")
-            
-    
-    </py-script>
+    <div>
+      <py-title>Trade Gestor Light</py-title>
+      <p>With this calculator you would be abble to determine the exact leverage that allow you to quickly respect your account risk.
+        <a href="example.html"> <u><b>Example of use</b></u></a></p>
+      <br />
+      <b><a id="BitcoinPrice"></a></b>
+      <form onsubmit="return false">
+      
+        <label for="volOp">Operation Amount: $</label>
+        <input type="text" id="volOp" name="volOp" value=0><br>
+        <label for="volRisk">Risked Amount: $</label>
+        <input type="text" id="volRisk" name="volRisk" value=0><br>
+        <label for="SL">Price target stop-loss: $</label>
+        <input type="text" id="SL" name="SL" value=0><br>
+        <!-- llama a la funcion "sub" -->
+        <input pys-onClick="sub" type="submit" id="btn-form" value="Calculate Leverage">
+      </form>
+      <!-- Imprimimos "output" y creamos un parrafo vacío con id=output -->
+      <p>Operation Details:</p>
+      <p id = 'output1'></p>
+      <p id = 'output2'></p>
+      <p id = 'output3'></p>
+      <p id = 'output4'></p>
+      
+          <py-script>
+          from pyodide.http import pyfetch
+          import json
+          import asyncio
+          import re
+          response = await pyfetch(url="https://api.coindesk.com/v1/bpi/currentprice.json", method="GET")
+      
+          output = f'{await response.json()}'
+      
+          def jj(output):
+            str1 = output.replace("\'", "\"")
+            st= json.loads(str1)
+            return st
+      
+          def price_BTC():
+            price_BTC = jj(output)['bpi']['USD']['rate_float']
+            pyscript.write('BitcoinPrice', 'Bitcoin Price: $ {}'.format(price_BTC))
+            return price_BTC
+      
+          price_BTC()
+      
+          def sub(*args,**kwargs):
+              volOp = float(Element('volOp').value)
+              volRisk = float(Element('volRisk').value)
+              priceSL = float(Element('SL').value)
+              priceActual = float(price_BTC())
+              if priceSL < priceActual:
+                  opType = 'Long'
+                  for i in range(1, 125):
+                      volumen_operation = volOp * i
+                      asset_amount = volumen_operation / priceActual
+                      end_balance = volumen_operation - asset_amount*priceSL
+                      if end_balance >= volRisk:
+                          apal = i
+                          break
+              elif priceSL > priceActual:
+                  opType = 'Short'
+                  for i in range(1, 125):
+                      volumen_operation = volOp * i
+                      asset_amount = volumen_operation / priceActual
+                      end_balance = asset_amount*priceSL - volumen_operation
+                      if end_balance >= volRisk:
+                          apal = i
+                          break
+              else:
+                  print('posibles errores:\n- que 125x se quede corto\n- que priceSL sea igual a priceActual')
+              riskOp = end_balance
+              riskOpp = riskOp/volOp * 100
+      
+      
+              liq = priceActual / apal
+              if opType == 'Long':
+                  liq = priceActual - liq
+              else:
+                  liq += priceActual
+      
+              riskOp = round(riskOp,2)
+              riskOpp = round(riskOpp,2)
+              liq = round(liq, 2)
+              result_place = Element('output1')
+              result_place.write(f"Updated Risked Amount: ${riskOp}")
+              result_place = Element('output2')
+              result_place.write(f"Percentage Risked: {riskOpp}%")
+              result_place = Element('output3')
+              result_place.write(f"Leverage: {apal}x")
+              result_place = Element('output4')
+              result_place.write(f"Liquidation Price: ${liq}")
+      </py-script>
+    </div>
+    <div>
+      Designed and deployed by Agustin Stigliano.
+    </div>
 
 </body>
 </html>
