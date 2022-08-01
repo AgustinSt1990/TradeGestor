@@ -6,14 +6,15 @@ app = Flask(__name__)
 
 @app.get("/")
 def index():
-    """
-    DEFAULT ROUTE
-    This method will
-    1. Provide usage instructions formatted as JSON
-    """
-
-    # Since this is a website with front-end, we don't need to send the usage instructions
     return render_template('index.html')
+
+@app.get("/example")
+def index():
+    return render_template('example.html')
+
+@app.get("/example-p2")
+def index():
+    return render_template('example-p2.html')
 
 
 if __name__ == '__main__':
