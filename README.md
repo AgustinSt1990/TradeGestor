@@ -1,4 +1,4 @@
-home: tradegestor.herokuapp.com
+<a href="tradegestor.herokuapp.com">to the app</a>
 
 # TradeGestor
 ## Example of use
