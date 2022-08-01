@@ -1,4 +1,4 @@
-<a href="http://tradegestor.herokuapp.com">to the app</a>
+<a href="http://tradegestor.herokuapp.com">TO THE APP!</a>
 
 # TradeGestor
 ## Example of use
