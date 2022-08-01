@@ -12,9 +12,9 @@ def index():
 def index():
     return render_template('example.html')
 
-@app.get("/example-p2")
+@app.get("/example2")
 def index():
-    return render_template('example-p2.html')
+    return render_template('example2.html')
 
 
 if __name__ == '__main__':
